@@ -1,4 +1,3 @@
-import { Alert } from 'react-native';
 import {
   Client,
   Account,
@@ -24,7 +23,6 @@ const {
   databaseId,
   userCollectionId,
   videoCollectionId,
-  storageId,
 } = config;
 
 // Init your React Native SDK
@@ -54,12 +52,12 @@ export const createUser = async (
 
     await signIn(email, password);
 
-    const user = await databases.createDocument(
-      databaseId,
-      userCollectionId,
-      ID.unique(),
-      { accountId: newAccount.$id, email, username, avatar: avatarUrl }
-    );
+    await databases.createDocument(databaseId, userCollectionId, ID.unique(), {
+      accountId: newAccount.$id,
+      email,
+      username,
+      avatar: avatarUrl,
+    });
   } catch (err) {
     console.log(err);
     throw err;
@@ -96,7 +94,8 @@ export const getCurrentUser = async () => {
 
 export const getAllPosts = async () => {
   try {
-    return databases.listDocuments(databaseId, videoCollectionId);
+    const data = await databases.listDocuments(databaseId, videoCollectionId);
+    return data?.documents || [];
   } catch (error) {
     throw error;
   }
@@ -104,10 +103,36 @@ export const getAllPosts = async () => {
 
 export const getLatestPosts = async () => {
   try {
-    return databases.listDocuments(databaseId, videoCollectionId, [
+    const data = await databases.listDocuments(databaseId, videoCollectionId, [
       Query.orderDesc('$createdAt'),
       Query.limit(7),
     ]);
+
+    return data?.documents || [];
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const searchPosts = async (query: string) => {
+  try {
+    return databases.listDocuments(databaseId, videoCollectionId, [
+      Query.search('title', query),
+    ]);
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getUserPosts = async (userId: string) => {
+  try {
+    const { documents: data } = await databases.listDocuments(
+      databaseId,
+      videoCollectionId,
+      [Query.equal('users', userId)]
+    );
+
+    return data;
   } catch (error) {
     throw error;
   }

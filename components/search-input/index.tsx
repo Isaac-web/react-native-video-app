@@ -8,26 +8,33 @@ import {
 } from 'react-native';
 import React, { useState } from 'react';
 import { icons } from '../../constants';
+import { router, useLocalSearchParams, usePathname } from 'expo-router';
 
 type Props = {
-  value: string;
+  value?: string;
   label?: string;
   placeholder?: string;
   className?: string;
   keyboardType?: KeyboardTypeOptions;
-  onChangeText(value: string): void;
+  onChangeText?(value: string): void;
 };
 
 const SearchInput = ({
   label,
-  value,
   placeholder,
-  onChangeText,
   className,
   keyboardType,
 }: Props) => {
-  const [showPassword, setShowPassword] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
+  const pathname = usePathname();
+
+  const { query: searchQuery } = useLocalSearchParams();
+  const [query, setQuery] = useState(searchQuery as string);
+
+  const handleSearch = () => {
+    if (pathname.startsWith('/search')) router.setParams({ query });
+    else router.push(`/search/${query}`);
+  };
 
   return (
     <View className={`space-y-5 space-x-4 ${className}`}>
@@ -43,20 +50,16 @@ const SearchInput = ({
       >
         <TextInput
           className="text-base mt-1 text-white flex-1 font-pregular"
-          value={value}
+          value={query}
           placeholder={placeholder}
-          placeholderTextColor={'#7b7b8b'}
-          onChangeText={onChangeText}
-          secureTextEntry={label === 'Password' && showPassword ? true : false}
-          keyboardType={keyboardType}
+          placeholderTextColor={'#CDCDE0'}
+          onChangeText={(value) => setQuery(value)}
+          keyboardType={'web-search'}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
         />
 
-        <TouchableOpacity
-          onPress={() => setShowPassword((prev) => !prev)}
-          activeOpacity={0.7}
-        >
+        <TouchableOpacity activeOpacity={0.7} onPress={() => handleSearch()}>
           <Image
             source={icons.search}
             fadeDuration={0}

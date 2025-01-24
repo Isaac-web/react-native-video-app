@@ -8,7 +8,7 @@ export const useAppwrite = <T,>(fn: Function) => {
 
   const handleFetchData = async () => {
     try {
-      const { documents: data } = await fn();
+      const data = await fn();
 
       setData(data as T[]);
       setIsLoading(false);

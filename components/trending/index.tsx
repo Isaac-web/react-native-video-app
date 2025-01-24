@@ -31,9 +31,9 @@ const Trending = ({ posts }: Props) => {
         )}
         onViewableItemsChanged={handleViewableItemsChanged}
         viewabilityConfig={{
-          itemVisiblePercentThreshold: 70,
+          itemVisiblePercentThreshold: 60,
         }}
-        contentOffset={{ x: 170, y: 0 }}
+        contentOffset={{ x: 95, y: 0 }}
         horizontal
       />
     </View>
